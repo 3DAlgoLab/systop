@@ -12,15 +12,14 @@ let mainWindow
 function createMainWindow() {
   mainWindow = new BrowserWindow({
     title: 'APP NAME',
-    width: isDev ? 800 : 500,
-    height: 600,
+    width: 350,
+    height: 500,
     icon: './assets/icons/icon.png',
-    resizable: isDev ? true : false,
-    backgroundColor: 'white',
+    resizable: isDev ? true : false,    
     webPreferences: {
       nodeIntegration: true,
-      worldSafeExecuteJavaScript: true, 
-      contextIsolation: true 
+      enableRemoteModule: true,
+      worldSafeExecuteJavaScript: true,             
     },
   })
 
