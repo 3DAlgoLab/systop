@@ -1,12 +1,12 @@
 {
   "name": "sys-top",
   "productName": "SYSTOP",
-  "version": "1.0.0",  
+  "version": "1.0.0",
   "description": "System Monitoring App",
-  "main": "main.js",  
+  "main": "main.js",
   "scripts": {
-    "start": "electron .",
-    "dev": "nodemon --exec electron .",
+    "start": "nodemon --exec electron .",
+    "production": "cross-env NODE_ENV=production electron .",
     "package-mac": "electron-packager . --overwrite --platform=darwin --arch=x64 --icon=assets/icons/mac/icon.icns --prune=true --out=release-builds",
     "package-win": "electron-packager . --overwrite --platform=win32 --arch=ia32 --icon=assets/icons/win/icon.ico --prune=false --out=release-builds --version-string.CompanyName=CE --version-string.FileDescription=CE --version-string.ProductName=\"SYSTOP\"",
     "package-linux": "electron-packager . --overwrite --platform=linux --arch=x64 --icon=assets/icons/png/1024x1024.png --prune=false --out=release-builds"
@@ -17,7 +17,8 @@
   "author": "Brad Traversy",
   "license": "MIT",
   "devDependencies": {
-    "electron": "^9.4.4",
+    "cross-env": "^7.0.3",
+    "electron": "^18.2.4",
     "electron-packager": "^15.5.1",
     "nodemon": "^2.0.16"
   },
