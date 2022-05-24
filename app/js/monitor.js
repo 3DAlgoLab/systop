@@ -9,6 +9,12 @@ const os = ou.os;
 let cpuOverload = 90;
 let alertFrequency = 1; //minutes
 
+// Get Settings
+ipcRenderer.on('settings:get', (e, settings) => {
+  cpuOverload = +settings.cpuOverload;
+  alertFrequency = +settings.alertFrequency;
+});
+
 document.getElementById('cpu-model').innerText = cpu.model();
 document.getElementById('comp-name').innerText = os.hostname();
 document.getElementById('os').innerText = `${os.type()} ${os.arch()}`;

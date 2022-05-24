@@ -1,4 +1,11 @@
-const { app, BrowserWindow, Menu, ipcMain, Notification } = require('electron');
+const {
+  app,
+  BrowserWindow,
+  Menu,
+  ipcMain,
+  Notification,
+  Tray,
+} = require('electron');
 const path = require('path');
 const Store = require('./Store');
 
@@ -7,6 +14,8 @@ const isDev = process.env.NODE_ENV !== 'production' ? true : false;
 const isMac = process.platform === 'darwin' ? true : false;
 
 let mainWindow;
+let tray;
+
 // init store & defaults
 const store = new Store({
   configName: 'user-settings',
@@ -29,6 +38,8 @@ function createMainWindow() {
     height: 500,
     icon: './assets/icons/icon.png',
     resizable: isDev ? true : false,
+    opacity: 0.8,
+    show: false,
     webPreferences: {
       nodeIntegration: true,
       enableRemoteModule: true,
@@ -52,14 +63,56 @@ app.on('ready', () => {
     mainWindow.webContents.send('settings:get', store.get('settings'));
   });
 
+  mainWindow.on('close', (e) => {
+    if (!app.isQuitting) {
+      e.preventDefault();
+      mainWindow.hide();
+    }
+
+    return true;
+  });
+
   const mainMenu = Menu.buildFromTemplate(menu);
   Menu.setApplicationMenu(mainMenu);
+
+  const icon = path.join(__dirname, 'assets', 'icons', 'icon.png');
+  tray = new Tray(icon);
+  tray.on('click', () => {
+    if (mainWindow.isVisible()) {
+      mainWindow.hide();
+    } else {
+      mainWindow.show();
+    }
+  });
+
+  tray.on('right-click', () => {
+    const contextMenu = Menu.buildFromTemplate([
+      {
+        label: 'Quit',
+        click: () => {
+          app.isQuitting = true;
+          app.quit();
+        },
+      },
+    ]);
+
+    tray.popUpContextMenu(contextMenu);
+  });
 });
 
 const menu = [
   ...(isMac ? [{ role: 'appMenu' }] : []),
   {
     role: 'fileMenu',
+  },
+  {
+    label: 'View',
+    submenu: [
+      {
+        label: 'Toggle Navigation',
+        click: () => mainWindow.webContents.send('nav:toggle'),
+      },
+    ],
   },
   ...(isDev
     ? [
@@ -94,4 +147,9 @@ app.allowRendererProcessReuse = true;
 ipcMain.on('notify', (event, options) => {
   const n = new Notification(options);
   n.show();
+});
+
+ipcMain.on('settings:set', (e, settings) => {
+  store.set('settings', settings);
+  mainWindow.webContents.send('settings:get', settings);
 });

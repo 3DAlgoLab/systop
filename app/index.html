@@ -68,10 +68,40 @@
     <script src="js/tabs.js"></script>
     <script src="js/monitor.js"></script>
     <script>
+      // Get default settings
       ipcRenderer.on('settings:get', (e, settings) => {
         document.getElementById('cpu-overload').value = settings.cpuOverload;
         document.getElementById('alert-frequency').value =
           settings.alertFrequency;
+      });
+
+      // Submit settings
+      const settingsForm = document.getElementById('settings-form');
+      const nav = document.getElementById('nav');
+
+      settingsForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const cpuOverload = document.getElementById('cpu-overload').value;
+        const alertFrequency = document.getElementById('alert-frequency').value;
+        ipcRenderer.send('settings:set', {
+          cpuOverload,
+          alertFrequency,
+        });
+
+        // console.log('settings saved!');
+        showAlert('Settings saved!');
+      });
+
+      function showAlert(msg) {
+        const alert = document.getElementById('alert');
+        alert.classList.remove('hide');
+        alert.classList.add('alert');
+        alert.innerText = msg;
+        setTimeout(() => alert.classList.add('hide'), 3000);
+      }
+
+      ipcRenderer.on('nav:toggle', () => {
+        nav.classList.toggle('hide');
       });
     </script>
   </body>
