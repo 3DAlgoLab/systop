@@ -1,12 +1,22 @@
 const { app, BrowserWindow, Menu, ipcMain, Notification } = require('electron');
 const path = require('path');
-// Set env
-// process.env.NODE_ENV = 'development'
+const Store = require('./Store');
 
+// Set env
 const isDev = process.env.NODE_ENV !== 'production' ? true : false;
 const isMac = process.platform === 'darwin' ? true : false;
 
 let mainWindow;
+// init store & defaults
+const store = new Store({
+  configName: 'user-settings',
+  defaults: {
+    settings: {
+      cpuOverload: 80,
+      alertFrequency: 5,
+    },
+  },
+});
 
 function createMainWindow() {
   console.log('Develop Mode: ' + isDev);
@@ -37,6 +47,10 @@ function createMainWindow() {
 
 app.on('ready', () => {
   createMainWindow();
+
+  mainWindow.webContents.on('dom-ready', () => {
+    mainWindow.webContents.send('settings:get', store.get('settings'));
+  });
 
   const mainMenu = Menu.buildFromTemplate(menu);
   Menu.setApplicationMenu(mainMenu);
